@@ -1,0 +1,89 @@
+name: npm publish
+
+on:
+    workflow_call:
+        inputs:
+            dry-run:
+                required: false
+                type: boolean
+
+            check-commit-signature:
+                required: false
+                type: boolean
+                default: true
+
+            pgp-key-id:
+                required: false
+                type: string
+                default: E51989A3E7A27FDF
+
+            pgp-key-server:
+                required: false
+                type: string
+                default: hkp://keyserver.ubuntu.com
+
+        secrets:
+            npm-access-token:
+                required: true
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        if: github.event.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '#npm-publish')
+
+        steps:
+            -   uses: actions/checkout@v3
+                with:
+                    fetch-depth: 1
+
+            -   name: Verify commit signature
+                if: ${{ inputs.check-commit-signature }}
+                working-directory: .
+                env:
+                    COMMIT_HASH: ${{ github.event.head_commit.id }}
+                    KEY_ID: ${{ inputs.pgp-key-id }}
+                    KEY_SERVER: ${{ inputs.pgp-key-server }}
+                run: |
+                    mkdir ~/.gnupg
+                    echo "trusted-key 0x$KEY_ID" >> ~/.gnupg/gpg.conf
+                    gpg --no-tty --keyserver "$KEY_SERVER" --recv-keys "$KEY_ID"
+
+                    git_logline=$(git log --pretty="format:%h %G? %GK" -1 $COMMIT_HASH)
+                    logline_hash=$(echo $git_logline | cut -d' ' -f1)
+                    logline_sigok=$(echo $git_logline | cut -d' ' -f2)
+                    logline_sigfp=$(echo $git_logline | cut -d' ' -f3)
+
+                    echo "Verifying commit info: $logline_hash / $logline_sigok / $logline_sigfp"
+
+                    if [[ $COMMIT_HASH != $logline_hash* ]]; then
+                        echo "Verified commit hash $logline_hash doesn't match workflow hash $COMMIT_HASH"
+                        exit 1
+                    fi
+
+                    if [ $logline_sigok != "G" ]; then
+                        echo "Commit signature status is not 'G': $logline_sigok"
+                        exit 2
+                    fi
+
+                    if [ $logline_sigfp != "$KEY_ID" ]; then
+                        echo "Commit signature key id $logline_sigfp does not match expected $KEY_ID"
+                        exit 3
+                    fi
+
+                    echo "Commit signature OK"
+
+            -   name: Use Node.js 12.x
+                uses: actions/setup-node@v3
+                with:
+                    node-version: 12.x
+
+            -   name: npm install
+                working-directory: .
+                run: npm install --ignore-scripts
+
+            -   name: npm publish
+                uses: JS-DevTools/npm-publish@v2.0.0
+                with:
+                    token: ${{ secrets.npm-access-token }}
+                    access: public
+                    dry-run: ${{ inputs.dry-run }}
