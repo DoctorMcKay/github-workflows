@@ -45,6 +45,7 @@ jobs:
                     KEY_SERVER: ${{ inputs.pgp-key-server }}
                 run: |
                     mkdir ~/.gnupg
+                    chmod 700 ~/.gnupg
                     echo "trusted-key 0x$KEY_ID" >> ~/.gnupg/gpg.conf
                     gpg --no-tty --keyserver "$KEY_SERVER" --recv-keys "$KEY_ID"
 
