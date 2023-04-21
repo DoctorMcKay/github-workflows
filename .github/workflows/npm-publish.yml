@@ -84,8 +84,7 @@ jobs:
                     node-version: ${{ inputs.node-version }}
 
             -   name: npm install
-                working-directory: .
-                run: npm install --ignore-scripts
+                run: npm install
 
             -   name: npm publish
                 uses: JS-DevTools/npm-publish@v2.0.0
