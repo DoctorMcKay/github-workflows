@@ -12,7 +12,7 @@ on:
                 type: string
 
 jobs:
-    publish:
+    build:
         runs-on: ubuntu-latest
 
         steps:
