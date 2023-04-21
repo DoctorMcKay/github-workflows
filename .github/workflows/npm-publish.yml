@@ -3,6 +3,11 @@ name: npm publish
 on:
     workflow_call:
         inputs:
+            node-version:
+                required: false
+                type: string
+                default: 12.x
+
             dry-run:
                 required: false
                 type: boolean
@@ -73,10 +78,10 @@ jobs:
 
                     echo "Commit signature OK"
 
-            -   name: Use Node.js 12.x
+            -   name: Use Node.js ${{ inputs.node-version }}
                 uses: actions/setup-node@v3
                 with:
-                    node-version: 12.x
+                    node-version: ${{ inputs.node-version }}
 
             -   name: npm install
                 working-directory: .
