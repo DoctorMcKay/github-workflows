@@ -20,7 +20,7 @@ on:
             pgp-key-id:
                 required: false
                 type: string
-                default: E51989A3E7A27FDF
+                default: 4E25AE41FE0072C7
 
             pgp-key-server:
                 required: false
