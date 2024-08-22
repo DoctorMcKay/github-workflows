@@ -37,7 +37,7 @@ jobs:
         if: success() && github.event.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '#npm-publish')
 
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
                 with:
                     fetch-depth: 1
 
@@ -79,7 +79,7 @@ jobs:
                     echo "Commit signature OK"
 
             -   name: Use Node.js ${{ inputs.node-version }}
-                uses: actions/setup-node@v3
+                uses: actions/setup-node@v4
                 with:
                     node-version: ${{ inputs.node-version }}
 
@@ -87,7 +87,7 @@ jobs:
                 run: npm install
 
             -   name: npm publish
-                uses: JS-DevTools/npm-publish@v2.0.0
+                uses: JS-DevTools/npm-publish@v3
                 with:
                     token: ${{ secrets.npm-access-token }}
                     dry-run: ${{ inputs.dry-run }}
