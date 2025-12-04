@@ -8,10 +8,6 @@ on:
                 type: string
                 default: 12.x
 
-            dry-run:
-                required: false
-                type: boolean
-
             check-commit-signature:
                 required: false
                 type: boolean
@@ -26,10 +22,6 @@ on:
                 required: false
                 type: string
                 default: hkp://keyserver.ubuntu.com
-
-        secrets:
-            npm-access-token:
-                required: true
 
 jobs:
     publish:
@@ -87,7 +79,4 @@ jobs:
                 run: npm install
 
             -   name: npm publish
-                uses: JS-DevTools/npm-publish@v3
-                with:
-                    token: ${{ secrets.npm-access-token }}
-                    dry-run: ${{ inputs.dry-run }}
+                run: npm publish
