@@ -70,10 +70,10 @@ jobs:
 
                     echo "Commit signature OK"
 
-            -   name: Use Node.js ${{ inputs.node-version }}
+            -   name: Use Node.js LTS
                 uses: actions/setup-node@v4
                 with:
-                    node-version: ${{ inputs.node-version }}
+                    node-version: "lts/*"
 
             -   name: npm install
                 run: npm install
